@@ -6,9 +6,10 @@ function init() {
 async function fetchData(cityName) {
   try {
     const response = await fetch(
-      `http://api.weatherapi.com/v1/search.json?key=c22524022e1d4eb4a5c11444233011&q=${cityName}`
+      `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=a850e970fcee14c3dc6dd045b4e06dd9`
     );
     const data = await response.json();
+
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);

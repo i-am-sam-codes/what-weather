@@ -1,8 +1,25 @@
 function init() {
   const form = document.querySelector("form");
 
-  form.addEventListener("submit", (e) => searchInput(e));
+  form.addEventListener("submit", (e) => handleSubmit(e));
 }
+
+async function handleSubmit(e) {
+  e.preventDefault();
+
+  const input = document.querySelector("#search-bar");
+  const inputValue = input.value.toLowerCase();
+
+  const weatherData = await fetchData(inputValue);
+  const cityName = weatherData.name
+  const weatherDescription = weatherData.weather[0].description;
+  const temperature = Math.floor(weatherData.main.temp);
+  
+  const gifData = await fetchGiphyImage(weatherDescription);
+  const gifUrl = gifData.data[0].images.original.url
+  displayWeather(cityName, temperature, weatherDescription, gifUrl);
+}
+
 async function fetchData(cityName) {
   try {
     const response = await fetch(
@@ -10,29 +27,32 @@ async function fetchData(cityName) {
     );
     const data = await response.json();
 
-    const answer = Math.floor(data.main.temp);
-
-    displayWeather(answer);
-
-    return answer;
+    return data
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 }
 
-function searchInput(e) {
-  e.preventDefault();
+function displayWeather(cityName, temperature, weatherDescription, gifUrl) {
+  const display = document.querySelector(".display");
+  const img = document.querySelector('img');
+  
+  display.textContent = `The current weather in ${cityName} is ${temperature}° F with ${weatherDescription}`;
+  img.src = gifUrl
 
-  const input = document.querySelector("#search-bar");
-  const cityName = input.value.toLowerCase();
-
-  fetchData(cityName);
 }
 
-function displayWeather(answer) {
-  const display = document.querySelector(".display");
-  
-  display.textContent = "The current weather is: " + answer;
+async function fetchGiphyImage(weatherDescription) {
+  const query = `${weatherDescription} weather`
+
+  try {
+    const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=aDKC7Z1QyGy3M1ZNmjzaxHUy1xnaCX7X&q=${query}&limit=2&offset=0&rating=g&lang=en&bundle=messaging_non_clips`);
+    const giphy = await response.json();
+    
+    return giphy
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 }
 
 init();
